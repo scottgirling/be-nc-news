@@ -45,14 +45,17 @@ describe("GET /api/articles/:article_id", () => {
     .get("/api/articles/1")
     .expect(200)
     .then(({ body: { article }}) => {
-      expect(article).toHaveProperty("author");
-      expect(article).toHaveProperty("title");
-      expect(article).toHaveProperty("article_id");
-      expect(article).toHaveProperty("body");
-      expect(article).toHaveProperty("topic");
-      expect(article).toHaveProperty("created_at");
-      expect(article).toHaveProperty("votes");
-      expect(article).toHaveProperty("article_img_url");
+      const expectedOutput = {
+        article_id: 1,
+        title: 'Living in the shadow of a great man',
+        topic: 'mitch',
+        author: 'butter_bridge',
+        body: 'I find this existence challenging',
+        created_at: '2020-07-09T20:11:00.000Z',
+        votes: 100,
+        article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+      }
+      expect(article).toMatchObject(expectedOutput);
     });
   });
   test("404: should respond with an appropriate status and error message when given a valid but non-existent id", () => {
@@ -73,3 +76,32 @@ describe("GET /api/articles/:article_id", () => {
   });
 });
 
+describe("GET /api/articles", () => {
+  test("200: should respond with an array of article objects with the appropriate properties and status code", () => {
+    return request(app)
+    .get("/api/articles")
+    .expect(200)
+    .then(({ body: { articles } }) => {
+      expect(articles.length).toBe(13);
+      articles.forEach((article) => {
+        expect(article).toHaveProperty("author");
+        expect(article).toHaveProperty("title");
+        expect(article).toHaveProperty("article_id");
+        expect(article).toHaveProperty("topic");
+        expect(article).toHaveProperty("created_at");
+        expect(article).toHaveProperty("votes");
+        expect(article).toHaveProperty("article_img_url");
+        expect(article).toHaveProperty("comment_count");
+        expect(article).not.toHaveProperty("body");
+      });
+    });
+  });
+  test("200: should respond with an ordered array of article objects with an appropriate status code", () => {
+    return request(app)
+    .get("/api/articles")
+    .expect(200)
+    .then(({ body: { articles } }) => {
+      expect(articles).toBeSortedBy("created_at", { descending: true });
+    });
+  });
+});
