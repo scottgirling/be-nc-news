@@ -347,3 +347,19 @@ describe("DELETE /api/comments/:comment_id", () => {
     });
   });
 });
+
+describe("GET /api/users", () => {
+  test("200: should respond with an array of user objects with the appropriate properties and status code", () => {
+    return request(app)
+    .get("/api/users")
+    .expect(200)
+    .then(({ body: { users } }) => {
+      expect(users.length).toBe(4);
+      users.forEach((user) => {
+        expect(user).toHaveProperty("username", expect.any(String));
+        expect(user).toHaveProperty("name", expect.any(String));
+        expect(user).toHaveProperty("avatar_url", expect.any(String));
+      });
+    });
+  });
+});
