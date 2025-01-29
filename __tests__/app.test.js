@@ -71,7 +71,7 @@ describe("GET /api/articles/:article_id", () => {
     .get("/api/articles/one")
     .expect(400)
     .then((response) => {
-      expect(response.body.msg).toBe("Bad Request: invalid or missing field")
+      expect(response.body.msg).toBe("Bad Request: wrong data type")
     });
   });
 });
@@ -147,7 +147,7 @@ describe("GET /api/articles/:article_id/comments", () => {
     .get("/api/articles/one/comments")
     .expect(400)
     .then((response) => {
-      expect(response.body.msg).toBe("Bad Request: invalid or missing field");
+      expect(response.body.msg).toBe("Bad Request: wrong data type");
     });
   });
 
@@ -193,7 +193,7 @@ describe("POST /api/snacks/:article_id/comments", () => {
     })
     .expect(400)
     .then(({ body: { msg } }) => {
-      expect(msg).toBe("Bad Request: invalid or missing field")
+      expect(msg).toBe("Bad Request: body does not contain the correct fields")
     });
   });
 
@@ -220,7 +220,7 @@ describe("POST /api/snacks/:article_id/comments", () => {
     })
     .expect(400)
     .then(({ body: { msg } }) => {
-      expect(msg).toBe("Bad Request: invalid or missing field");
+      expect(msg).toBe("Bad Request: wrong data type");
     });
   });
 
@@ -234,6 +234,90 @@ describe("POST /api/snacks/:article_id/comments", () => {
     .expect(404)
     .then(({ body: { msg } }) => {
       expect(msg).toBe("Article does not exist")
+    });
+  });
+});
+
+describe("PATCH /api/articles/:article_id", () => {
+  test("200: should respond with the updated article and an appropriate status code when the number of votes has been increased", () => {
+    return request(app)
+    .patch("/api/articles/1")
+    .send({ inc_votes: 12 })
+    .expect(200)
+    .then(({ body: { updatedArticle } }) => {
+      const expectedOutput = {
+        article_id: 1,
+        title: "Living in the shadow of a great man",
+        topic: "mitch",
+        author: "butter_bridge",
+        body: "I find this existence challenging",
+        created_at: "2020-07-09T20:11:00.000Z",
+        votes: 112,
+        article_img_url:
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+      }
+      expect(updatedArticle).toMatchObject(expectedOutput);
+    });
+  });
+
+  test("200: should respond with the updated article and an appropriate status code when the number of votes has been decreased", () => {
+    return request(app)
+    .patch("/api/articles/1")
+    .send({ inc_votes: -30 })
+    .expect(200)
+    .then(({ body: { updatedArticle } }) => {
+      const expectedOutput = {
+        article_id: 1,
+        title: "Living in the shadow of a great man",
+        topic: "mitch",
+        author: "butter_bridge",
+        body: "I find this existence challenging",
+        created_at: "2020-07-09T20:11:00.000Z",
+        votes: 70,
+        article_img_url:
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+      }
+      expect(updatedArticle).toMatchObject(expectedOutput);
+    });
+  });
+
+  test("400: should respond with an appropriate status and error message when the given request body does not contain the correct fields", () => {
+    return request(app)
+    .patch("/api/articles/1")
+    .send({})
+    .expect(400)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Bad Request: body does not contain the correct fields")
+    });
+  });
+
+  test("400: should respond with an appropriate status and error message when given a body that contains valid fields but the value of the field is invalid", () => {
+    return request(app)
+    .patch("/api/articles/1")
+    .send({ inc_votes: "fifteen" })
+    .expect(400)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Bad Request: wrong data type");
+    });
+  });
+  
+  test("400: should respond with an appropriate status and error message when given an invalid article_id", () => {
+    return request(app)
+    .patch("/api/articles/twelve")
+    .send({ inc_votes: 12 })
+    .expect(400)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Bad Request: wrong data type");
+    });
+  });
+
+  test("404: should respond with an appropriate status and error message when given a valid but non-existent article_id", () => {
+    return request(app)
+    .patch("/api/articles/876")
+    .send({ inc_votes: 55 })
+    .expect(404)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Article does not exist");
     });
   });
 });
