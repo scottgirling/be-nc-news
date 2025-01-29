@@ -96,12 +96,54 @@ describe("GET /api/articles", () => {
       });
     });
   });
-  test("200: should respond with an ordered array of article objects with an appropriate status code", () => {
-    return request(app)
-    .get("/api/articles")
-    .expect(200)
-    .then(({ body: { articles } }) => {
-      expect(articles).toBeSortedBy("created_at", { descending: true });
+  describe("GET /api/articles QUERIES", () => {
+    test("200: should sort by a valid column and respond with an sorted array of article objects with an appropriate status code", () => {
+      return request(app)
+      .get("/api/articles?sort_by=votes")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("votes", { descending: true });
+      });
+    });
+    test("200: should by default sort by created_at if not otherwise specified, respoding with an sorted array of article objects and an appropriate status code", () => {
+      return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("created_at", { descending: true });
+      });
+    });
+    test("404: should return an appropriate error message and status code when trying to sort by an invalid column", () => {
+      return request(app)
+      .get("/api/articles?sort_by=characters")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Invalid Input.");
+      });
+    });
+    test.only("200: should order and respond with an ordered array of article objects with an appropriate status code", () => {
+      return request(app)
+      .get("/api/articles?sort_by=article_id&order=asc")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("article_id");
+      });
+    });
+    test("200: should by default order to desc if not otherwise specified, responding with an ordered array of article objects and an appropriate status code", () => {
+      return request(app)
+      .get("/api/articles?sort_by=article_id")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("article_id", { descending: true });
+      });
+    });
+    test("404: should return an appropriate error message and status code when trying to order by an invalid option", () => {
+      return request(app)
+      .get("/api/articles?sort_by=article_id&order=backwards")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Invalid Input.");
+      });
     });
   });
 });
