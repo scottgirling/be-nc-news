@@ -321,3 +321,29 @@ describe("PATCH /api/articles/:article_id", () => {
     });
   });
 });
+
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: should remove the selected comment and return an appropriate status code", () => {
+    return request(app)
+    .delete("/api/comments/1")
+    .expect(204)
+  });
+
+  test("400: should respond with an appropriate status and error message when given an invalid comment_id", () => {
+    return request(app)
+    .delete("/api/comments/one")
+    .expect(400)
+    .then(( { body: { msg } }) => {
+      expect(msg).toBe("Bad Request: wrong data type");
+    });
+  });
+
+  test("404: hould respond with an appropriate status and error message when given a valid but non-existent comment_id", () => {
+    return request(app)
+    .delete("/api/comments/354")
+    .expect(404)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Comment does not exist");
+    });
+  });
+});
