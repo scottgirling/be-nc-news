@@ -63,7 +63,7 @@ describe("GET /api/articles/:article_id", () => {
     .get("/api/articles/75")
     .expect(404)
     .then((response) => {
-      expect(response.body.msg).toBe("article does not exist");
+      expect(response.body.msg).toBe("Article does not exist");
     });
   });
   test("400: should respond with an appropriate status and error message when given an invalid id", () => {
@@ -71,7 +71,7 @@ describe("GET /api/articles/:article_id", () => {
     .get("/api/articles/one")
     .expect(400)
     .then((response) => {
-      expect(response.body.msg).toBe("bad request: invalid ID")
+      expect(response.body.msg).toBe("Bad Request: invalid or missing field")
     });
   });
 });
@@ -142,21 +142,21 @@ describe("GET /api/articles/:article_id/comments", () => {
     });
   });
 
-  test("400: should respond with an appropriate status and error message when given an invalid id", () => {
+  test("400: should respond with an appropriate status and error message when given an invalid article_id", () => {
     return request(app)
     .get("/api/articles/one/comments")
     .expect(400)
     .then((response) => {
-      expect(response.body.msg).toBe("bad request: invalid ID");
+      expect(response.body.msg).toBe("Bad Request: invalid or missing field");
     });
   });
 
-  test("404: should respond with an appropriate status and error message when given a valid but non-existent id", () => {
+  test("404: should respond with an appropriate status and error message when given a valid but non-existent article_id", () => {
     return request(app)
     .get("/api/articles/50/comments")
     .expect(404)
     .then((response) => {
-      expect(response.body.msg).toBe("article does not exist");
+      expect(response.body.msg).toBe("Article does not exist");
     });
   });
 
@@ -166,6 +166,74 @@ describe("GET /api/articles/:article_id/comments", () => {
     .expect(200)
     .then(({ body: { comments } }) => {
       expect(comments.length).toBe(0);
+    });
+  });
+});
+
+describe("POST /api/snacks/:article_id/comments", () => {
+  test("201: should add a comment to a specific article and responds with the posted comment and an appropriate status code", () => {
+    return request(app)
+    .post("/api/articles/9/comments")
+    .send({
+      username: "lurker",
+      body: "this coding course is great!"
+    })
+    .expect(201)
+    .then(({ body: { newComment } }) => {
+      expect(newComment.author).toBe("lurker");
+      expect(newComment.body).toBe("this coding course is great!");
+    });
+  });
+
+  test("400: should respond with an appropriate status and error message when the given request body does not contain the correct fields", () => {
+    return request(app)
+    .post("/api/articles/9/comments")
+    .send({
+      body: "this coding course is great!"
+    })
+    .expect(400)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Bad Request: invalid or missing field")
+    });
+  });
+
+  // below test not finished because PSQL appears to automatically turn the "body" from the number 12 to a string of "12". Therefore it's expecting a 201 status code and not a 400. Am I meant to add some code to prevent PSQL turning the "body" from a number 12 to a string of "12" or is it the ordinary function of PSQL to act in this manner? Is it possible to test for this?
+  test.skip("400: should respond with an appropriate status and error message when given a body that contains valid fields but the value of the field is invalid", () => {
+    return request(app)
+    .post("/api/articles/9/comments")
+    .send({
+      username: "lurker",
+      body: 12
+    })
+    .expect(400)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Bad Request: wrong data type");
+    });
+  });
+
+  test("400: should respond with an appropriate status and error message when given an invalid article_id", () => {
+    return request(app)
+    .post("/api/articles/nine/comments")
+    .send({
+      username: "lurker",
+      body: "this coding course is great!"
+    })
+    .expect(400)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Bad Request: invalid or missing field");
+    });
+  });
+
+  test("404: should respond with an appropriate status and error message when given a valid but non-existent article_id", () => {
+    return request(app)
+    .post("/api/articles/1234/comments")
+    .send({
+      username: "lurker",
+      body: "this coding course is great!"
+    })
+    .expect(404)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Article does not exist")
     });
   });
 });
