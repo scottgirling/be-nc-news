@@ -58,6 +58,25 @@ describe("GET /api/articles/:article_id", () => {
       expect(article).toMatchObject(expectedOutput);
     });
   });
+  test("200: should respond with an appropriate status code and a single article object with a comment_count property set to the total count of all comments with this article_id", () => {
+    return request(app)
+    .get("/api/articles/9")
+    .expect(200)
+    .then(({ body: { article } }) => {
+      const expectedOutput = {
+        article_id: 9,
+        title: "They're not exactly dogs, are they?",
+        topic: 'mitch',
+        author: 'butter_bridge',
+        body: 'Well? Think about it.',
+        created_at: "2020-06-06T09:10:00.000Z",
+        votes: 0,
+        article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+        comment_count: "2"
+      }
+      expect(article).toMatchObject(expectedOutput);
+    });
+  });
   test("404: should respond with an appropriate status and error message when given a valid but non-existent id", () => {
     return request(app)
     .get("/api/articles/75")
