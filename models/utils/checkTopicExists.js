@@ -5,7 +5,6 @@ const checkTopicExists = (topic) => {
         if (!rows.length) {
             return Promise.reject({ status: 404, msg: "Topic not found." });
         }
-        return rows;
     });
 }
 

@@ -1,6 +1,6 @@
 const db = require("../../db/connection");
 
-const checkArticleIdExists = (article_id) => {
+const checkArticleExists = (article_id) => {
     return db.query("SELECT * FROM articles WHERE article_id = $1", [article_id])
     .then(({ rows }) => {
         if (!rows.length) {
@@ -10,4 +10,4 @@ const checkArticleIdExists = (article_id) => {
     })
 }
 
-module.exports = checkArticleIdExists;
+module.exports = checkArticleExists;
