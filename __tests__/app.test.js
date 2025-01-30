@@ -121,7 +121,7 @@ describe("GET /api/articles", () => {
         expect(msg).toBe("Invalid Input.");
       });
     });
-    test.only("200: should order and respond with an ordered array of article objects with an appropriate status code", () => {
+    test("200: should order and respond with an ordered array of article objects with an appropriate status code", () => {
       return request(app)
       .get("/api/articles?sort_by=article_id&order=asc")
       .expect(200)
@@ -143,6 +143,33 @@ describe("GET /api/articles", () => {
       .expect(404)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Invalid Input.");
+      });
+    });
+    test("200: should respond with a filtered list of article objects that match the topic query as well as an appropriate status code", () => {
+      return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBe(12);
+        articles.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+    });
+    test("200: should respond with an empty array and an appropriate status code when a request to a valid topic is made but no articles exist on it yet", () => {
+      return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBe(0);
+      });
+    });
+    test("404: should return an appropriate error message and status code when trying to filter by a topic that does not yet exist", () => {
+      return request(app)
+      .get("/api/articles?topic=coding")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Topic not found.");
       });
     });
   });
