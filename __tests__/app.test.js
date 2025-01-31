@@ -194,6 +194,67 @@ describe("GET /api/articles", () => {
   });
 });
 
+describe("POST /api/articles", () => {
+  test("should create an article resource, responding with the newly created article and an appropriate status code", () => {
+    return request(app)
+    .post("/api/articles")
+    .send({
+      author: "butter_bridge",
+      title: "Once upon a time in CodeLand",
+      body: "It's Friday! Let's keeping coding through the weekend!",
+      topic: "paper",
+      article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+    })
+    .expect(201)
+    .then(({ body: { newArticle } }) => {
+      expect(newArticle).toHaveProperty("author", "butter_bridge");
+      expect(newArticle).toHaveProperty("title", "Once upon a time in CodeLand");
+      expect(newArticle).toHaveProperty("body", "It's Friday! Let's keeping coding through the weekend!");
+      expect(newArticle).toHaveProperty("topic", "paper");
+      expect(newArticle).toHaveProperty("article_img_url", "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700");
+      expect(newArticle).toHaveProperty("article_id", expect.any(Number));
+      expect(newArticle).toHaveProperty("votes", expect.any(Number));
+      expect(newArticle).toHaveProperty("created_at", expect.any(String));
+      expect(newArticle).toHaveProperty("comment_count", expect.any(String));
+    });
+  });
+  test("201: should create an article resource with a deafult 'article_img_url' if none is provided in the request body, responding with the newly created article and an appropriate status code", () => {
+    return request(app)
+    .post("/api/articles")
+    .send({
+      author: "butter_bridge",
+      title: "Once upon a time in CodeLand",
+      body: "It's Friday! Let's keeping coding through the weekend!",
+      topic: "paper",author: "butter_bridge",
+    })
+    .expect(201)
+    .then(({ body: { newArticle } }) => {
+      expect(newArticle).toHaveProperty("author", "butter_bridge");
+      expect(newArticle).toHaveProperty("title", "Once upon a time in CodeLand");
+      expect(newArticle).toHaveProperty("body", "It's Friday! Let's keeping coding through the weekend!");
+      expect(newArticle).toHaveProperty("topic", "paper");
+      expect(newArticle).toHaveProperty("article_img_url", "https://images.pexels.com/photos/defaultimage1234567");
+      expect(newArticle).toHaveProperty("article_id", expect.any(Number));
+      expect(newArticle).toHaveProperty("votes", expect.any(Number));
+      expect(newArticle).toHaveProperty("created_at", expect.any(String));
+      expect(newArticle).toHaveProperty("comment_count", expect.any(String));
+    });
+  });
+  test("400: should respond with an appropriate status and error message when the given request body does not contain the correct fields", () => {
+    return request(app)
+    .post("/api/articles")
+    .send({
+      author: "butter_bridge",
+      title: "Once upon a time in CodeLand",
+      body: "It's Friday! Let's keeping coding through the weekend!",
+    })
+    .expect(400)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Bad Request: body does not contain the correct fields")
+    });
+  });
+});
+
 describe("GET /api/articles/:article_id/comments", () => {
   test("200: should respond with an array of comment objects and an appropriate status code", () => {
     return request(app)
