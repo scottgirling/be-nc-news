@@ -5,7 +5,6 @@ const checkCommentExists = (comment_id) => {
         if (!rows.length) {
             return Promise.reject({ status: 404, msg: "Comment does not exist" });
         }
-        return rows;
     })
 }
 

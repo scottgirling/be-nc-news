@@ -19,7 +19,6 @@ describe("GET /api", () => {
       .get("/api")
       .expect(200)
       .then(({ body: { endpoints } }) => {
-        console.log(endpoints)
         expect(endpoints).toEqual(endpointsJson);
       });
   });
@@ -395,6 +394,73 @@ describe("PATCH /api/articles/:article_id", () => {
     .expect(404)
     .then(({ body: { msg } }) => {
       expect(msg).toBe("Article does not exist");
+    });
+  });
+});
+
+describe("PATCH /api/comments/:comment_id", () => {
+  test("200: should respond with the updated comment and an appropriate status code when the number of votes has been increased", () => {
+    return request(app)
+    .patch("/api/comments/1")
+    .send({ inc_votes: 10 })
+    .expect(200)
+    .then(({ body: { updatedComment } }) => {
+      expect(updatedComment).toMatchObject({
+        body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        votes: 26,
+        author: "butter_bridge",
+        article_id: 9,
+        created_at: "2020-04-06T12:17:00.000Z"
+      });
+    });
+  });
+  test("200: should respond with the updated comment and an appropriate status code when the number of votes has been decreased", () => {
+    return request(app)
+    .patch("/api/comments/1")
+    .send({ inc_votes: -10 })
+    .expect(200)
+    .then(({ body: { updatedComment } }) => {
+      expect(updatedComment).toMatchObject({
+        body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        votes: 6,
+        author: "butter_bridge",
+        article_id: 9,
+        created_at: "2020-04-06T12:17:00.000Z"
+      });
+    });
+  });
+  test("400: should respond with an appropriate status and error message when the given request body does not contain the correct fields", () => {
+    return request(app)
+    .patch("/api/comments/1")
+    .send({})
+    .expect(400)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Bad Request: body does not contain the correct fields");
+    });
+  });
+  test("400: should respond with an appropriate status and error message when given a body that contains valid fields but the value of the field is invalid", () => {
+    return request(app)
+    .patch("/api/comments/1")
+    .send({ inc_votes: "fifteen" })
+    .expect(400)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Bad Request: wrong data type");
+    });
+  });
+  test("400: should respond with an appropriate status and error message when given an invalid comment_id", () => {
+    return request(app)
+    .patch("/api/comments/one")
+    .expect(400)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Bad Request: wrong data type");
+    });
+  });
+  test("404: should respond with an appropriate status code and error message when given a valid but non-existent comment_id", () => {
+    return request(app)
+    .patch("/api/comments/555")
+    .expect(404)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Comment does not exist");
     });
   });
 });
