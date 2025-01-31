@@ -19,6 +19,7 @@ describe("GET /api", () => {
       .get("/api")
       .expect(200)
       .then(({ body: { endpoints } }) => {
+        console.log(endpoints)
         expect(endpoints).toEqual(endpointsJson);
       });
   });
@@ -229,7 +230,6 @@ describe("GET /api/articles/:article_id/comments", () => {
       expect(comments).toBeSortedBy("created_at", { descending: true });
     });
   });
-
   test("400: should respond with an appropriate status and error message when given an invalid article_id", () => {
     return request(app)
     .get("/api/articles/one/comments")
@@ -238,7 +238,6 @@ describe("GET /api/articles/:article_id/comments", () => {
       expect(response.body.msg).toBe("Bad Request: wrong data type");
     });
   });
-
   test("404: should respond with an appropriate status and error message when given a valid but non-existent article_id", () => {
     return request(app)
     .get("/api/articles/50/comments")
@@ -247,7 +246,6 @@ describe("GET /api/articles/:article_id/comments", () => {
       expect(response.body.msg).toBe("Article does not exist");
     });
   });
-
   test("200: should respond with an empty array when a request to a valid article_id is made but no comments exist on it yet", () => {
     return request(app)
     .get("/api/articles/8/comments")
@@ -272,7 +270,6 @@ describe("POST /api/snacks/:article_id/comments", () => {
       expect(newComment.body).toBe("this coding course is great!");
     });
   });
-
   test("400: should respond with an appropriate status and error message when the given request body does not contain the correct fields", () => {
     return request(app)
     .post("/api/articles/9/comments")
@@ -284,7 +281,6 @@ describe("POST /api/snacks/:article_id/comments", () => {
       expect(msg).toBe("Bad Request: body does not contain the correct fields")
     });
   });
-
   // below test not finished because PSQL appears to automatically turn the "body" from the number 12 to a string of "12". Therefore it's expecting a 201 status code and not a 400. Am I meant to add some code to prevent PSQL turning the "body" from a number 12 to a string of "12" or is it the ordinary function of PSQL to act in this manner? Is it possible to test for this?
   test.skip("400: should respond with an appropriate status and error message when given a body that contains valid fields but the value of the field is invalid", () => {
     return request(app)
@@ -298,7 +294,6 @@ describe("POST /api/snacks/:article_id/comments", () => {
       expect(msg).toBe("Bad Request: wrong data type");
     });
   });
-
   test("400: should respond with an appropriate status and error message when given an invalid article_id", () => {
     return request(app)
     .post("/api/articles/nine/comments")
@@ -311,7 +306,6 @@ describe("POST /api/snacks/:article_id/comments", () => {
       expect(msg).toBe("Bad Request: wrong data type");
     });
   });
-
   test("404: should respond with an appropriate status and error message when given a valid but non-existent article_id", () => {
     return request(app)
     .post("/api/articles/1234/comments")
@@ -347,7 +341,6 @@ describe("PATCH /api/articles/:article_id", () => {
       expect(updatedArticle).toMatchObject(expectedOutput);
     });
   });
-
   test("200: should respond with the updated article and an appropriate status code when the number of votes has been decreased", () => {
     return request(app)
     .patch("/api/articles/1")
@@ -368,7 +361,6 @@ describe("PATCH /api/articles/:article_id", () => {
       expect(updatedArticle).toMatchObject(expectedOutput);
     });
   });
-
   test("400: should respond with an appropriate status and error message when the given request body does not contain the correct fields", () => {
     return request(app)
     .patch("/api/articles/1")
@@ -378,7 +370,6 @@ describe("PATCH /api/articles/:article_id", () => {
       expect(msg).toBe("Bad Request: body does not contain the correct fields")
     });
   });
-
   test("400: should respond with an appropriate status and error message when given a body that contains valid fields but the value of the field is invalid", () => {
     return request(app)
     .patch("/api/articles/1")
@@ -388,7 +379,6 @@ describe("PATCH /api/articles/:article_id", () => {
       expect(msg).toBe("Bad Request: wrong data type");
     });
   });
-  
   test("400: should respond with an appropriate status and error message when given an invalid article_id", () => {
     return request(app)
     .patch("/api/articles/twelve")
@@ -398,7 +388,6 @@ describe("PATCH /api/articles/:article_id", () => {
       expect(msg).toBe("Bad Request: wrong data type");
     });
   });
-
   test("404: should respond with an appropriate status and error message when given a valid but non-existent article_id", () => {
     return request(app)
     .patch("/api/articles/876")
@@ -416,7 +405,6 @@ describe("DELETE /api/comments/:comment_id", () => {
     .delete("/api/comments/1")
     .expect(204)
   });
-
   test("400: should respond with an appropriate status and error message when given an invalid comment_id", () => {
     return request(app)
     .delete("/api/comments/one")
@@ -425,7 +413,6 @@ describe("DELETE /api/comments/:comment_id", () => {
       expect(msg).toBe("Bad Request: wrong data type");
     });
   });
-
   test("404: hould respond with an appropriate status and error message when given a valid but non-existent comment_id", () => {
     return request(app)
     .delete("/api/comments/354")
@@ -448,6 +435,29 @@ describe("GET /api/users", () => {
         expect(user).toHaveProperty("name", expect.any(String));
         expect(user).toHaveProperty("avatar_url", expect.any(String));
       });
+    });
+  });
+});
+
+describe("GET /api/users/:username", () => {
+  test("200: should respond with a single user object with an appropriate status code", () => {
+    return request(app)
+    .get("/api/users/rogersop")
+    .expect(200)
+    .then(({ body: { user } }) => {
+      expect(user).toMatchObject({
+        username: 'rogersop',
+        name: 'paul',
+        avatar_url: 'https://avatars2.githubusercontent.com/u/24394918?s=400&v=4'
+      });
+    });
+  });
+  test("404: should respond with an appropriate error message and status code when given a valid but non-existent username", () => {
+    return request(app)
+    .get("/api/users/1234")
+    .expect(404)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("User does not exist.");
     });
   });
 });
