@@ -1,6 +1,6 @@
 const db = require("../db/connection");
 
-const selectArticles = (sort_by = "created_at", order = "desc", topic) => {
+const selectArticles = (sort_by = "created_at", order = "desc", topic, limit = 10, p) => {
     const allowedSortBy = ["article_id", "title", "topic", "author", "body", "created_at", "votes", "article_img_url"];
     const allowedOrder = ["asc", "desc"];
     const queryValues = [];
@@ -16,8 +16,12 @@ const selectArticles = (sort_by = "created_at", order = "desc", topic) => {
         queryValues.push(topic);
     }
 
-    queryStr += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order}`;
-
+    queryStr += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order} LIMIT ${limit}`
+    
+    if (p) {
+        p = p -1;
+        queryStr += ` OFFSET ${p * limit}`;
+    }
 
     return db.query(queryStr, queryValues).then(({ rows }) => {
         return rows;

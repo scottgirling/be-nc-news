@@ -101,7 +101,7 @@ describe("GET /api/articles", () => {
     .get("/api/articles")
     .expect(200)
     .then(({ body: { articles } }) => {
-      expect(articles.length).toBe(13);
+      expect(articles.length).toBe(10);
       articles.forEach((article) => {
         expect(article).toHaveProperty("author", expect.any(String));
         expect(article).toHaveProperty("title", expect.any(String));
@@ -169,7 +169,7 @@ describe("GET /api/articles", () => {
       .get("/api/articles?topic=mitch")
       .expect(200)
       .then(({ body: { articles } }) => {
-        expect(articles.length).toBe(12);
+        expect(articles.length).toBe(10);
         articles.forEach((article) => {
           expect(article.topic).toBe("mitch");
         });
@@ -191,6 +191,36 @@ describe("GET /api/articles", () => {
         expect(msg).toBe("Topic not found.");
       });
     });
+  });
+  describe("GET /api/articles PAGINATION", () => {
+    test("200: should accept a 'limit' query and respond with an array of article objects according to this limit, as well as an appropriate status code", () => {
+      return request(app)
+      .get("/api/articles?limit=5")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBe(5);
+      });
+    });
+    test("200: the 'limit' query should default to 10 and respond with an array of article objects according to this limit, as well as an appropriate status code", () => {
+      return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBe(10);
+      });
+    });
+    test("200: should accept a 'p' (page) query which specifies the page to start at and responds with an array or article objects according to this, as well as an appropriate status code", () => {
+      return request(app)
+      .get("/api/articles?sort_by=article_id&order=asc&p=2")
+      .expect(200)
+      .then(({ body: { articles, total_count } }) => {
+        expect(articles.length).toBe(3);
+        expect(total_count).toBe(3);
+      });
+    });
+    // Consider what errors could occur with this endpoint, and make sure to test for them.
+    // Note: This is a new behaviour which may break previous behaviours you have inferred.
+    // Remember to add a description of this endpoint to your /api endpoint.
   });
 });
 
