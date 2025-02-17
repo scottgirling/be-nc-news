@@ -346,7 +346,7 @@ describe("GET /api/articles/:article_id/comments", () => {
   });
 });
 
-describe("POST /api/snacks/:article_id/comments", () => {
+describe("POST /api/articles/:article_id/comments", () => {
   test("201: should add a comment to a specific article and responds with the posted comment and an appropriate status code", () => {
     return request(app)
     .post("/api/articles/9/comments")
