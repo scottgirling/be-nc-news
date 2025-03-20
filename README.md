@@ -8,7 +8,7 @@ Here you will find a description, list of available queries, example path with q
 Project Summary:
 An API built to programmatically access data, featuring full CRUD functionality on a dataset built up of articles, comments, users and topics.
 The project mimicks a real-world backend service which could provide information to front-end architecture.
-Built with an Express server and a PSQL databse, this project encompasses aggregate functions, seeding, integration testing, error handling and complex queries.
+Built with an Express server and a PSQL database, this project encompasses aggregate functions, seeding, integration testing, error handling and complex queries.
 
 How to get set-up:
 
