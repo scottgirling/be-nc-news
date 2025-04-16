@@ -209,7 +209,7 @@ describe("GET /api/articles", () => {
         expect(articles.length).toBe(10);
       });
     });
-    test("200: should accept a 'p' (page) query which specifies the page to start at and responds with an array or article objects according to this, as well as an appropriate status code", () => {
+    test("200: should accept a 'p' (page) query which specifies the page to start at and responds with an array of article objects according to this, as well as an appropriate status code", () => {
       return request(app)
       .get("/api/articles?sort_by=article_id&order=asc&p=2")
       .expect(200)
@@ -218,8 +218,22 @@ describe("GET /api/articles", () => {
         expect(total_count).toBe(3);
       });
     });
-    // Consider what errors could occur with this endpoint, and make sure to test for them.
-    // Note: This is a new behaviour which may break previous behaviours you have inferred.
+    test("400: should respond with an appropriate status and error message when given an invalid 'p'", () => {
+      return request(app)
+      .get("/api/articles?p=one")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request: wrong data type");
+      });
+    });
+    test("404: should respond with an appropriate status and error message when given a valid but non-existent p", () => {
+      return request(app)
+      .get("/api/articles?topic=cats&p=10")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Page does not exist");
+      });
+    });
     // Remember to add a description of this endpoint to your /api endpoint.
   });
 });
