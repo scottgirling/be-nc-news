@@ -14,7 +14,7 @@ afterAll(() => {
 })
 
 describe("GET /api", () => {
-  test("200: Responds with an object detailing the documentation for each endpoint", () => {
+  test("200: responds with an object detailing the documentation for each endpoint", () => {
     return request(app)
       .get("/api")
       .expect(200)
@@ -226,7 +226,7 @@ describe("GET /api/articles", () => {
         expect(response.body.msg).toBe("Bad Request: wrong data type");
       });
     });
-    test("404: should respond with an appropriate status and error message when given a valid but non-existent p", () => {
+    test("404: should respond with an appropriate status and error message when given a valid but non-existent 'p'", () => {
       return request(app)
       .get("/api/articles?topic=cats&p=10")
       .expect(404)
@@ -234,7 +234,6 @@ describe("GET /api/articles", () => {
         expect(response.body.msg).toBe("Page does not exist");
       });
     });
-    // Remember to add a description of this endpoint to your /api endpoint.
   });
 });
 
@@ -357,6 +356,48 @@ describe("GET /api/articles/:article_id/comments", () => {
     .then(({ body: { comments } }) => {
       expect(comments.length).toBe(0);
     });
+  });
+  describe("GET /api/articles/:article_id/comments PAGINATION", () => {
+    test("200: should accept a 'limit' query and respond with an array of comment objects according to this limit, as well as an appropriate status code", () => {
+      return request(app)
+      .get("/api/articles/1/comments?limit=5")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments.length).toBe(5)
+      });
+    });
+    test("200: the 'limit' query should default to 10 and respond with an array of comments according to this limit, as well as an appropriate status code", () => {
+      return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(( { body: { comments } }) => {
+        expect(comments.length).toBe(10);
+      });
+    });
+    test("200: should accept a 'p' (page) query which specifies the page to start at and responds with an array or comment objects according to this, as well as an appropriate status code", () => {
+      return request(app)
+      .get("/api/articles/1/comments?p=2")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments.length).toBe(1);
+      });
+    });
+    test("400: should respond with an appropriate status and error message when given an invalid 'p'", () => {
+      return request(app)
+      .get("/api/articles/1/comments?p=two")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request: wrong data type");
+      });
+    });
+    test("400: should respond with an appropriate status and error message when given a valid but non-existent 'p'", () => {
+      return request(app)
+      .get("/api/articles/1/comments?p=3")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Page does not exist");
+      })
+    })
   });
 });
 

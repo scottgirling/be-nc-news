@@ -23,7 +23,8 @@ const selectArticles = (sort_by = "created_at", order = "desc", topic, limit = 1
         queryStr += ` OFFSET ${p * limit}`;
     }
 
-    return db.query(queryStr, queryValues).then(({ rows }) => {
+    return db.query(queryStr, queryValues)
+    .then(({ rows }) => {
         return rows;
     })
 }
