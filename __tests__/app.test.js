@@ -238,7 +238,7 @@ describe("GET /api/articles", () => {
 });
 
 describe("POST /api/articles", () => {
-  test("should create an article resource, responding with the newly created article and an appropriate status code", () => {
+  test("201: should create an article resource, responding with the newly created article and an appropriate status code", () => {
     return request(app)
     .post("/api/articles")
     .send({
@@ -268,7 +268,7 @@ describe("POST /api/articles", () => {
       author: "butter_bridge",
       title: "Once upon a time in CodeLand",
       body: "It's Friday! Let's keeping coding through the weekend!",
-      topic: "paper",author: "butter_bridge",
+      topic: "paper",
     })
     .expect(201)
     .then(({ body: { newArticle } }) => {
@@ -670,6 +670,46 @@ describe("GET /api/users/:username", () => {
     .expect(404)
     .then(({ body: { msg } }) => {
       expect(msg).toBe("User does not exist.");
+    });
+  });
+});
+
+describe("POST /api/topics", () => {
+  test("201: should create a new topic, responding with the newly created topic and an appropriate status code", () => {
+    return request(app)
+    .post("/api/topics")
+    .send({
+      slug: "finance",
+      description: "money money money",
+    })
+    .expect(201)
+    .then(({ body: { newTopic } }) => {
+      expect(newTopic).toHaveProperty("slug", "finance");
+      expect(newTopic).toHaveProperty("description", "money money money");
+      expect(newTopic)
+    });
+  });
+  test("201: should respond with a default value of 'null' if the 'description' property is omitted, as well as an appropriate status code", () => {
+    return request(app)
+    .post("/api/topics")
+    .send({
+      slug: "finance",
+    })
+    .expect(201)
+    .then(( { body: { newTopic } }) => {
+      expect(newTopic).toHaveProperty("slug", "finance");
+      expect(newTopic).toHaveProperty("description", null);
+    });
+  });
+  test("400: should respond with an appropriate status and error message when the given request body does not contain a slug", () => {
+    return request(app)
+    .post("/api/topics")
+    .send({
+      description: "money money money",
+    })
+    .expect(400)
+    .then(({ body: { msg} }) => {
+      expect(msg).toBe("Bad Request: body does not contain the correct fields")
     });
   });
 });

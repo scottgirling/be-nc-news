@@ -1,7 +1,7 @@
 const db = require("../db/connection");
 const checkArticleExists = require("./utils/checkArticleExists");
 
-const addComments = (article_id, username, body) => {
+const addComment = (article_id, username, body) => {
     return checkArticleExists(article_id)
     .then(() => {
         return db.query("INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *", [article_id, username, body])
@@ -11,4 +11,4 @@ const addComments = (article_id, username, body) => {
     })
 }
 
-module.exports = addComments;
+module.exports = addComment;
