@@ -426,19 +426,6 @@ describe("POST /api/articles/:article_id/comments", () => {
       expect(msg).toBe("Bad Request: body does not contain the correct fields")
     });
   });
-  // below test not finished because PSQL appears to automatically turn the "body" from the number 12 to a string of "12". Therefore it's expecting a 201 status code and not a 400. Am I meant to add some code to prevent PSQL turning the "body" from a number 12 to a string of "12" or is it the ordinary function of PSQL to act in this manner? Is it possible to test for this?
-  test.skip("400: should respond with an appropriate status and error message when given a body that contains valid fields but the value of the field is invalid", () => {
-    return request(app)
-    .post("/api/articles/9/comments")
-    .send({
-      username: "lurker",
-      body: 12
-    })
-    .expect(400)
-    .then(({ body: { msg } }) => {
-      expect(msg).toBe("Bad Request: wrong data type");
-    });
-  });
   test("400: should respond with an appropriate status and error message when given an invalid article_id", () => {
     return request(app)
     .post("/api/articles/nine/comments")
@@ -625,7 +612,7 @@ describe("DELETE /api/comments/:comment_id", () => {
       expect(msg).toBe("Bad Request: wrong data type");
     });
   });
-  test("404: hould respond with an appropriate status and error message when given a valid but non-existent comment_id", () => {
+  test("404: should respond with an appropriate status and error message when given a valid but non-existent comment_id", () => {
     return request(app)
     .delete("/api/comments/354")
     .expect(404)
@@ -710,6 +697,30 @@ describe("POST /api/topics", () => {
     .expect(400)
     .then(({ body: { msg} }) => {
       expect(msg).toBe("Bad Request: body does not contain the correct fields")
+    });
+  });
+});
+
+describe("DELETE /api/articles/:article_id", () => {
+  test("204: should remove the selected article and return an appropriate status code", () => {
+    return request(app)
+    .delete("/api/articles/1")
+    .expect(204);
+  });
+  test("400: should respond with an appropriate status and error message when given an invalid article_id", () => {
+    return request(app)
+    .delete("/api/articles/fifteen")
+    .expect(400)
+    .then(( { body: { msg } }) => {
+      expect(msg).toBe("Bad Request: wrong data type");
+    });
+  });
+  test("404: should respond with an appropriate status and error message when given a valid but non-existent article_id", () => {
+    return request(app)
+    .delete("/api/articles/123")
+    .expect(404)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Article does not exist");
     });
   });
 });

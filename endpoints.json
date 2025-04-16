@@ -245,5 +245,9 @@
       "slug": "finance", 
       "description": "money money money"
     }
+  },
+  "DELETE /api/articles/:article_id": {
+    "description": "removes a single article object and the associated comments and returns only the applicable status code",
+    "queries": "none"
   }
 }
