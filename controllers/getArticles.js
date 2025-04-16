@@ -1,5 +1,5 @@
 const selectArticles = require("../models/selectArticles");
-const checkPageExists = require("../models/utils/checkPageExists");
+const checkArticlePageExists = require("../models/utils/checkArticlePageExists");
 const checkTopicExists = require("../models/utils/checkTopicExists");
 
 const getArticles = (request, response, next) => {
@@ -7,7 +7,7 @@ const getArticles = (request, response, next) => {
     if (topic) {
         return checkTopicExists(topic)
         .then(() => {
-            return checkPageExists(limit, p)
+            return checkArticlePageExists(limit, p)
         })
         .then(() => {
             return selectArticles(sort_by, order, topic, limit, p)
@@ -19,7 +19,7 @@ const getArticles = (request, response, next) => {
             next(error);
         });
     } else {
-        return checkPageExists(limit, p)
+        return checkArticlePageExists(limit, p)
         .then(() => {
             return selectArticles(sort_by, order, topic, limit, p)
         })
